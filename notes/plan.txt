@@ -1,0 +1,23 @@
+mongodb installed
+php installed
+
+create html form
+
+    name
+    surname
+    ID
+    dob
+    post
+    cancel
+    
+
+create php validation form
+    
+    check for duplicate ID number
+        - inform user if duplicate
+        - repopulate ID block
+    check for special characters in name and surname fields
+    check for length and numerical value of id number
+    check for dob dd/mm/yyyy format
+    
+    if all checks pass, post to mongodb database
