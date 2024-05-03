@@ -1,49 +1,62 @@
 <?php
+
 require 'vendor/autoload.php';
 $client = new MongoDB\Client("mongodb://localhost:27017");
 $collection = $client->myDatabase->myCollection;
 
-
 $name = $surname = $idNumber = $dob = '';
 $hasError = false; 
-
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'];
     $surname = $_POST['surname'];
-    $idNumber = isset($_POST['idNumber']) ? $_POST['idNumber'] : '';
+    $idNumber = $_POST['idNumber'] ?? '';
     $dob = $_POST['dob'];
 
-    
     if (empty($name) || empty($surname) || empty($dob)) {
-        echo "All fields are required to submit.";
+        echo "ERROR: All fields are required to submit.";
         $hasError = true;
     }
 
     if (!preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dob)) {
-        echo "Invalid date of birth format. Please use dd/mm/yyyy.";
+        echo "ERROR: Invalid date of birth format. Please use dd/mm/yyyy.";
+        $hasError = true;
+    }
+
+    $dobTimestamp = strtotime(str_replace('/', '-', $dob));
+    if ($dobTimestamp > time()) {
+        echo "ERROR: Your date of birth cannot be in the future.";
+        $hasError = true;
+    }
+
+    $dobParts = explode('/', $dob);
+    $convertedDob = substr($dobParts[2], -2) . $dobParts[1] . $dobParts[0];
+
+    $idDob = substr($idNumber, 0, 6);
+    if ($convertedDob !== $idDob) {
+        echo "ERROR: Your ID number does not match your date of birth or you have entered an invalid day or month.";
         $hasError = true;
     }
 
     if (preg_match('/\s/', $name) || preg_match('/\s/', $surname)) {
-        echo "Your name and surname fields should not contain whitespace.";
+        echo "ERROR: Your name and surname fields should not contain whitespace.";
         $hasError = true;
     }
 
     if (preg_match('/[^a-zA-Z0-9\s]/', $name) || preg_match('/[^a-zA-Z0-9\s]/', $surname)) {
-        echo "Your name and surname fields should not contain special characters.";
+        echo "ERROR: Your name and surname fields should not contain special characters.";
         $hasError = true;
     }
 
     if (!ctype_alnum($idNumber) || strlen($idNumber) != 13) {
-        echo "Invalid ID number, please ensure that your ID number was entered correctly.";
+        echo "ERROR: Invalid ID number, please ensure that your ID number was entered correctly.";
         $hasError = true;
     }
 
     if (!$hasError) {
         $duplicate = $collection->findOne(['idNumber' => $idNumber]);
         if ($duplicate) {
-            echo "Duplicate ID number detected, please ensure that your ID number was entered correctly.";
+            echo "ERROR: Duplicate ID number detected, please ensure that your ID number was entered correctly.";
             $hasError = true;
         }
     }
@@ -56,10 +69,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'dob' => $dob,
         ]);
 
-        echo "Your record has been inserted successfully";
+        echo "SUCCESS: Your record has been inserted successfully";
         $name = $surname = $idNumber = $dob = '';
     }
 }
+
 ?>
 
 <!doctype html>
@@ -79,6 +93,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </form>
 </body>
 </html>
-
-
 
