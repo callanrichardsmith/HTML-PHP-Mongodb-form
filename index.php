@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'dob' => $dob,
         ]);
 
-        echo "SUCCESS: Your record has been inserted successfully";
+        echo "SUCCESS: Your record has been inserted successfully.";
         $name = $surname = $idNumber = $dob = '';
     }
 }
