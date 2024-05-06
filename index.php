@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $hasError = true;
     }
 
-    if (preg_match('/[^a-zA-Z0-9\s]/', $name) || preg_match('/[^a-zA-Z0-9\s]/', $surname)) {
+    if (preg_match('/[^a-zA-Z\-\s]/', $name) || preg_match('/[^a-zA-Z\-\s]/', $surname)) {
         echo "ERROR: Your name and surname fields should not contain special characters.";
         $hasError = true;
     }
